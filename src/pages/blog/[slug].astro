@@ -1,6 +1,8 @@
 ---
 import { CollectionEntry, getCollection } from "astro:content";
+import TOC from "../../components/TOC";
 import Layout from "../../layouts/Layout.astro";
+
 export async function getStaticPaths() {
   const blog = await getCollection("blog");
   return blog.map((post) => ({
@@ -12,17 +14,35 @@ export async function getStaticPaths() {
 type Props = CollectionEntry<"blog">;
 const { data, render } = Astro.props;
 
-const { Content } = await render();
+const { Content, headings } = await render();
 ---
 
 <Layout title={data.title}>
-  <article>
-    <h1>{data.title}</h1>
-    <Content />
-  </article>
+  <main>
+    <header>
+      <TOC client:idle {headings} />
+    </header>
+    <article>
+      <h1>{data.title}</h1>
+      <Content />
+    </article>
+  </main>
 </Layout>
 
 <style>
+  main {
+    display: grid;
+    grid-template-columns: 5rem 1fr 5rem;
+    grid-template-rows: auto;
+    align-items: start;
+    position: relative;
+  }
+
+  header {
+    position: sticky;
+    top: 1rem;
+  }
+
   article {
     max-width: 60ch;
     margin: 0 auto;
