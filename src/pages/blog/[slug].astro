@@ -17,6 +17,7 @@ const { Content } = await render();
 
 <Layout title={data.title}>
   <article>
+    <h1>{data.title}</h1>
     <Content />
   </article>
 </Layout>
@@ -25,5 +26,9 @@ const { Content } = await render();
   article {
     max-width: 60ch;
     margin: 0 auto;
+  }
+
+  article :global(img) {
+    max-width: 100%;
   }
 </style>
