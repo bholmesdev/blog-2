@@ -10,13 +10,20 @@ const [headingSlug, setHeadingSlug] = createSignal<string | null>(null);
 
 export function TOC(props: Props) {
   return (
-    <div data-projector class="flex w-screen p-2 bg-red-100">
+    <div data-projector class="flex w-screen p-2 bg-red-100 overflow-clip">
       <p data-film class="w-max flex gap-2 whitespace-nowrap bg-red-200">
         <For each={props.headings}>
           {(heading) => (
             <span
-              hidden={heading.slug !== headingSlug()}
               class="w-screen whitespace-nowrap overflow-hidden overflow-ellipsis"
+              ref={(headingRef) => {
+                createEffect(() => {
+                  if (headingRef && heading.slug === headingSlug()) {
+                    console.log({ heading });
+                    headingRef.classList.add("bg-red-300");
+                  }
+                });
+              }}
             >
               {heading.text}
             </span>
