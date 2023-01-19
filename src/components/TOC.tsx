@@ -1,31 +1,59 @@
 import type { MarkdownHeading } from "astro";
-import { createSignal, Setter } from "solid-js";
-import s from "./TOC.module.css";
+import { createEffect, For, JSX, Setter } from "solid-js";
+import { createSignal } from "solid-js";
 
 type Props = {
   headings: MarkdownHeading[];
 };
 
-export default function TOC(props: Props) {
-  const [isExpanded, setIsExpanded] = createSignal(true);
+const [headingSlug, setHeadingSlug] = createSignal<string | null>(null);
 
+export function TOC(props: Props) {
   return (
-    <>
-      <ToggleButton setIsExpanded={setIsExpanded} />
-      <ul
-        class={s.toc}
-        classList={{ [s.expanded]: isExpanded() }}
-        aria-expanded={isExpanded()}
-        role="list"
-      >
-        {props.headings.map((heading) => (
-          <li>
-            <a href={`#${heading.slug}`}>{heading.text}</a>
-          </li>
-        ))}
-      </ul>
-    </>
+    <div data-projector class="flex w-screen p-2 bg-red-100">
+      <p data-film class="w-max flex gap-2 whitespace-nowrap bg-red-200">
+        <For each={props.headings}>
+          {(heading) => (
+            <span
+              hidden={heading.slug !== headingSlug()}
+              class="w-screen whitespace-nowrap overflow-hidden overflow-ellipsis"
+            >
+              {heading.text}
+            </span>
+          )}
+        </For>
+      </p>
+    </div>
   );
+}
+
+export function HeadingScrollObserver(props: { children: JSX.Element }) {
+  let containerRef: HTMLDivElement | null = null;
+  createEffect(() => {
+    if (containerRef) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setHeadingSlug(entry.target.id);
+            }
+          });
+        },
+        {
+          root: null,
+          rootMargin: "0px",
+          threshold: 1,
+        }
+      );
+
+      const headings = containerRef.querySelectorAll("h2, h3");
+      headings.forEach((heading) => {
+        observer.observe(heading);
+      });
+    }
+  });
+
+  return <div ref={(ref) => (containerRef = ref)}>{props.children}</div>;
 }
 
 function ToggleButton(props: { setIsExpanded: Setter<boolean> }) {

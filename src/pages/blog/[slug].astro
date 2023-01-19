@@ -1,6 +1,6 @@
 ---
 import { CollectionEntry, getCollection } from "astro:content";
-import TOC from "../../components/TOC";
+import { HeadingScrollObserver, TOC } from "../../components/TOC";
 import Layout from "../../layouts/Layout.astro";
 
 export async function getStaticPaths() {
@@ -24,20 +24,14 @@ const { Content, headings } = await render();
     </header>
     <article>
       <h1>{data.title}</h1>
-      <Content />
+      <HeadingScrollObserver client:idle>
+        <Content />
+      </HeadingScrollObserver>
     </article>
   </main>
 </Layout>
 
 <style>
-  main {
-    display: grid;
-    grid-template-columns: 5rem 1fr 5rem;
-    grid-template-rows: auto;
-    align-items: start;
-    position: relative;
-  }
-
   header {
     position: sticky;
     top: 1rem;
@@ -50,5 +44,10 @@ const { Content, headings } = await render();
 
   article :global(img) {
     max-width: 100%;
+  }
+
+  article :global(:is(h1, h2, h3)) {
+    font-size: 1.7rem;
+    margin: 2rem 0 1rem;
   }
 </style>
